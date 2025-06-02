@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación Tarjeta de Presentación - UnitMedia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --dark-blue: #1C2C44; /* Azul oscuro principal de la imagen */
+            --orange: #F3A02D;    /* Naranja de la imagen */
+            --cyan: #40C0D0;      /* Cyan de la imagen */
+            --white: #FFFFFF;
+            --reddish-pink: #E84C53; /* Asumiendo que este es el rosado/rojo del logo */
+            --light-blue-bg: #2a3f5f; /* Un azul ligeramente más claro para la tarjeta */
+            --font-family: 'Arial', sans-serif; /* Fuente limpia y profesional */
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-color: var(--dark-blue);
+            color: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            perspective: 1000px; 
+        }
+
+        .simulation-container {
+            width: 90%;
+            max-width: 400px; 
+            height: auto;
+            min-height: 600px; 
+            background-color: var(--light-blue-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative; 
+            opacity: 0;
+            transform: scale(0.9);
+            animation: fadeInContainer 1s ease-out forwards;
+        }
+
+        @keyframes fadeInContainer {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: slideDownFadeIn 0.8s ease-out 0.5s forwards;
+        }
+
+        .logo-image { /* Cambiado de .logo-svg a .logo-image */
+            width: 100px; /* Ajusta el tamaño según necesites */
+            height: auto; /* Mantiene la proporción */
+            max-height: 80px; /* Limita la altura si es necesario */
+            object-fit: contain; /* Asegura que toda la imagen sea visible */
+        }
+
+        .intro-text, .slogan-text, .connect-text, .cta-text {
+            opacity: 0;
+            margin-bottom: 15px;
+        }
+
+        .intro-text {
+            font-size: 1.8em;
+            font-weight: bold;
+            animation: fadeInText 1s ease-out 1s forwards;
+            margin-bottom: 10px;
+        }
+        
+        .slogan-text {
+            font-size: 0.9em;
+            color: var(--cyan);
+            animation: fadeInText 1s ease-out 1.5s forwards;
+            margin-bottom: 25px;
+        }
+
+        .connect-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            animation: fadeInText 1s ease-out 2s forwards;
+        }
+
+        .social-links {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .social-link {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--cyan);
+            color: var(--white);
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+            font-size: 1.1em;
+            opacity: 0;
+            transform: translateX(-100%);
+            position: relative;
+            overflow: hidden; 
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .social-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.03);
+        }
+        
+        .social-link.youtube-link { animation: slideInLink 0.7s ease-out 2.5s forwards; }
+        .social-link.instagram-link { animation: slideInLink 0.7s ease-out 3s forwards; }
+        .social-link.tiktok-link { animation: slideInLink 0.7s ease-out 3.5s forwards; }
+
+        .social-link i {
+            font-size: 1.8em; 
+            margin-right: 15px;
+            width: 30px; 
+            text-align: center;
+        }
+        
+        .fa-youtube { color: #FF0000; }
+        .fa-instagram { color: #E4405F; }
+        .fa-tiktok { color: #000000; filter: invert(1) drop-shadow(1px 1px var(--cyan)) drop-shadow(-1px -1px var(--cyan));} 
+
+
+        .social-link .link-text {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .shine-effect {
+            position: absolute;
+            top: -50%;
+            left: -150%;
+            width: 100%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.05) 40%,
+                rgba(255, 255, 255, 0.2) 50%, 
+                rgba(255, 255, 255, 0.05) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(25deg); 
+            animation: shine 1.5s linear 1; 
+            pointer-events: none; 
+            opacity: 0; 
+        }
+        
+        .social-link.shine .shine-effect {
+             opacity: 1; 
+        }
+
+
+        @keyframes shine {
+            0% { left: -150%; }
+            100% { left: 150%; }
+        }
+
+        .illustration-container {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .illustration-container svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .youtube-illustration { top: 240px; right: 20px; }
+        .instagram-illustration { top: 310px; right: 20px; }
+        .tiktok-illustration { top: 380px; right: 20px; }
+
+
+        .cta-text {
+            margin-top: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--orange);
+            animation: fadeInText 1s ease-out 4.5s forwards;
+        }
+
+        @keyframes fadeInText {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDownFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInLink {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .simulation-container.fade-out {
+            animation: fadeOutContainer 1s ease-in forwards;
+        }
+
+        @keyframes fadeOutContainer {
+            to {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+        }
+        .final-logo-container {
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeInContainer 1s ease-out forwards; 
+        }
+        .final-logo-text {
+            font-size: 1em;
+            color: var(--cyan);
+            margin-top: 10px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="simulation-container" id="simulationContainer">
+        <div class="logo-container">
+            <img src="C:\Users\Wikigamer\Downloads\Unitmedialogo.jpg" alt="Logo UnitMedia" class="logo-image" id="unitmediaLogo">
+        </div>
+        <p class="intro-text">Bienvenido a UnitMedia</p>
+        <p class="slogan-text">CREACIÓN DE CONTENIDO Y MARKETING DIGITAL</p>
+        <p class="connect-text">Conecta con nosotros:</p>
+
+        <div class="social-links">
+            <a href="https://www.youtube.com/channel/UCEVq3XFBS7Xm4eB41cX3cgA" target="_blank" class="social-link youtube-link" id="youtubeLink">
+                <i class="fab fa-youtube"></i>
+                <span class="link-text">YouTube</span>
+                <div class="shine-effect"></div>
+                <div class="illustration-container youtube-illustration" id="youtubeIllustration">
+                    <svg viewBox="0 0 50 50"><circle cx="25" cy="15" r="5" fill="var(--white)"/><path d="M15 45 C15 30, 35 30, 35 45 Z M10 25 H40 V35 H10 Z" fill="var(--white)"/></svg>
+                </div>
+            </a>
+            <a href="https://www.instagram.com/unitmedia_/?__pwa=1" target="_blank" class="social-link instagram-link" id="instagramLink">
+                <i class="fab fa-instagram"></i>
+                <span class="link-text">Instagram</span>
+                <div class="shine-effect"></div>
+                <div class="illustration-container instagram-illustration" id="instagramIllustration">
+                    <svg viewBox="0 0 50 50"><circle cx="25" cy="12" r="4" fill="var(--white)"/><path d="M20 45 C20 30, 30 30, 30 45 Z M22 20 L28 20 L28 35 L22 35 Z" fill="var(--white)"/><rect x="23" y="22" width="4" height="6" rx="1" fill="var(--dark-blue)"/> </svg>
+                </div>
+            </a>
+            <a href="https://www.tiktok.com/@unitmedia_?is_from_webapp=1&sender_device=pc" target="_blank" class="social-link tiktok-link" id="tiktokLink">
+                <i class="fab fa-tiktok"></i>
+                <span class="link-text">TikTok</span>
+                <div class="shine-effect"></div>
+                <div class="illustration-container tiktok-illustration" id="tiktokIllustration">
+                    <svg viewBox="0 0 50 50"><circle cx="25" cy="15" r="5" fill="var(--white)"/><path d="M18 45 C18 30, 32 30, 32 45 Z" fill="var(--white)"/><path d="M35 20 A5 5 0 0 1 40 25 M35 20 L35 30 A3 3 0 0 0 38 33" stroke="var(--white)" fill="none" stroke-width="2"/></svg>
+                </div>
+            </a>
+        </div>
+
+        <p class="cta-text" id="ctaText">¡Explora nuestro contenido!</p>
+    </div>
+
+    <div class="final-logo-container" id="finalLogoContainer">
+         <img src="https://placehold.co/100x80/1c2c44/ffffff?text=UnitMedia+Logo" alt="Logo UnitMedia" class="logo-image" id="finalUnitmediaLogo">
+        <p class="final-logo-text">CREACIÓN DE CONTENIDO Y MARKETING DIGITAL</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const simulationContainer = document.getElementById('simulationContainer');
+            const finalLogoContainer = document.getElementById('finalLogoContainer');
+
+            // --- INICIO: Código para reemplazar el src del logo si tienes la imagen en Base64 ---
+            // Ejemplo de cómo podrías establecer el src si tuvieras la imagen como Base64
+            // const logoBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQE..."; // Aquí iría tu string Base64 completo
+            // const logoImage = document.getElementById('unitmediaLogo');
+            // const finalLogoImage = document.getElementById('finalUnitmediaLogo');
+            // if (logoBase64 && logoBase64.startsWith("data:image")) { // Verifica que logoBase64 exista y sea válido
+            //    logoImage.src = logoBase64;
+            //    finalLogoImage.src = logoBase64;
+            // }
+            // --- FIN: Código para reemplazar el src del logo ---
+
+
+            const youtubeLink = document.getElementById('youtubeLink');
+            const instagramLink = document.getElementById('instagramLink');
+            const tiktokLink = document.getElementById('tiktokLink');
+
+            const youtubeIllustration = document.getElementById('youtubeIllustration');
+            const instagramIllustration = document.getElementById('instagramIllustration');
+            const tiktokIllustration = document.getElementById('tiktokIllustration');
+            
+            const ctaText = document.getElementById('ctaText');
+
+            const totalDuration = 58000; 
+            
+            setTimeout(() => {
+                youtubeIllustration.style.opacity = '1';
+            }, 4000);
+            setTimeout(() => {
+                youtubeLink.classList.add('shine');
+                setTimeout(() => youtubeIllustration.style.opacity = '0', 2000); 
+            }, 4500);
+
+            setTimeout(() => {
+                instagramIllustration.style.opacity = '1';
+            }, 6500);
+            setTimeout(() => {
+                instagramLink.classList.add('shine');
+                setTimeout(() => instagramIllustration.style.opacity = '0', 2000);
+            }, 7000);
+
+            setTimeout(() => {
+                tiktokIllustration.style.opacity = '1';
+            }, 9000);
+            setTimeout(() => {
+                tiktokLink.classList.add('shine');
+                setTimeout(() => tiktokIllustration.style.opacity = '0', 2000);
+            }, 9500);
+
+            setTimeout(() => {
+                let pulseDelay = 0;
+                [youtubeLink, instagramLink, tiktokLink].forEach(link => {
+                    setTimeout(() => {
+                        link.style.transition = 'transform 0.2s ease-in-out';
+                        link.style.transform = 'scale(1.05)';
+                        setTimeout(() => link.style.transform = 'scale(1)', 200);
+                    }, pulseDelay);
+                    pulseDelay += 300; 
+                });
+            }, 12000);
+
+            const outroStartTime = totalDuration - 8000; 
+
+            setTimeout(() => {
+                simulationContainer.classList.add('fade-out');
+            }, outroStartTime);
+
+            setTimeout(() => {
+                simulationContainer.style.display = 'none'; 
+                finalLogoContainer.style.display = 'flex'; 
+            }, outroStartTime + 1000); 
+
+            setTimeout(() => {
+                youtubeLink.classList.remove('shine');
+                instagramLink.classList.remove('shine');
+                tiktokLink.classList.remove('shine');
+            }, 11000); 
+
+        });
+    </script>
+</body>
+</html>
